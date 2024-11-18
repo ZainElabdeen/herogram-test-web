@@ -1,40 +1,16 @@
 import { FC, useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Button } from "@/components/ui/button";
 import { UploadCloud } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
 
-import axios from "@/utils/axios";
-import { IFileItem } from "@/utils/types";
+import { Button } from "@/components/ui/button";
 
 type FileUploadProps = {
-  onFileUpload: (file: IFileItem) => void;
-};
-
-const uploadFileMutation = async (formData: FormData): Promise<IFileItem> => {
-  const response = await axios.post("/files/upload", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-  return response.data.file;
+  onFileUpload: (file: File) => void;
 };
 
 const FileUpload: FC<FileUploadProps> = ({ onFileUpload }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  const { mutate } = useMutation({
-    mutationFn: uploadFileMutation,
-    onSuccess: (uploadedFile: IFileItem) => {
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      onFileUpload(uploadedFile);
-    },
-    onError: (err: any) => {
-      console.error("Error uploading file:", err);
-    },
-  });
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -62,9 +38,9 @@ const FileUpload: FC<FileUploadProps> = ({ onFileUpload }) => {
 
   const handleUploadClick = () => {
     if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      mutate(formData);
+      onFileUpload(selectedFile);
+      setSelectedFile(null);
+      setPreviewUrl(null);
     }
   };
 
@@ -104,15 +80,17 @@ const FileUpload: FC<FileUploadProps> = ({ onFileUpload }) => {
 
       {/* Display Image Preview */}
       {previewUrl && (
-        <div className="w-full mt-4">
+        <div className="w-full mt-4 ">
           <h4 className="mb-2 text-sm font-semibold text-gray-800">
             Image Preview:
           </h4>
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="max-w-full max-h-64 rounded-lg shadow-md"
-          />
+          <div className="w-full flex items-center justify-center">
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="max-w-full max-h-64 rounded-lg shadow-md"
+            />
+          </div>
         </div>
       )}
 
