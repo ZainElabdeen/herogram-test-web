@@ -12,6 +12,7 @@ import {
   Link,
 } from "lucide-react";
 import { useCallback } from "react";
+import TooltipHandler from "../components/TooltipHandler";
 
 const sharedLinkMutation = async (fileId: string) => {
   const response = await axios.post(`/files/${fileId}/share`);
@@ -71,24 +72,28 @@ const FileListItem = ({ file }: { file: IFileItem }) => {
       </div>
 
       {/* Generate Shared Link Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleGenerateLink}
-        className="ml-4"
-      >
-        <Link className="w-5 h-5 text-gray-600" />
-      </Button>
+      <TooltipHandler text="Generate Shared Link">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleGenerateLink}
+          className="ml-4"
+        >
+          <Link className="w-5 h-5 text-gray-600" />
+        </Button>
+      </TooltipHandler>
 
       {/* Open File Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => handleOpenFile(file.path)}
-        className="ml-4"
-      >
-        <ExternalLink className="w-5 h-5 text-gray-600" />
-      </Button>
+      <TooltipHandler text="Open File">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleOpenFile(file.path)}
+          className="ml-4"
+        >
+          <ExternalLink className="w-5 h-5 text-gray-600" />
+        </Button>
+      </TooltipHandler>
     </div>
   );
 };
