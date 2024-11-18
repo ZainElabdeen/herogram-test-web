@@ -1,7 +1,6 @@
+import { useCallback, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import axios, { baseURL } from "@/utils/axios";
-import { IFileItem } from "@/utils/types";
 import { useMutation } from "@tanstack/react-query";
 import {
   FileText,
@@ -11,8 +10,11 @@ import {
   ExternalLink,
   Link,
 } from "lucide-react";
-import { useCallback } from "react";
+
+import axios, { baseURL } from "@/utils/axios";
+import { IFileItem } from "@/utils/types";
 import TooltipHandler from "../components/TooltipHandler";
+import MessageDialog from "../components/MessageDialog";
 
 const sharedLinkMutation = async (fileId: string) => {
   const response = await axios.post(`/files/${fileId}/share`);
@@ -33,11 +35,14 @@ const renderFileIcon = (mimetype: string) => {
 };
 
 const FileListItem = ({ file }: { file: IFileItem }) => {
+  const [open, setOpen] = useState(false);
+  const [sharedLink, setSharedLink] = useState("");
   const { mutate } = useMutation({
     mutationFn: sharedLinkMutation,
     onSuccess: (data: any) => {
       const sharedLink = `${baseURL}/files/shared/${data?.sharedLink}`;
-      alert(`Shared Link: ${sharedLink}`);
+      setOpen(true);
+      setSharedLink(sharedLink);
     },
     onError: (err: any) => {
       console.error("Error uploading file:", err);
@@ -94,6 +99,13 @@ const FileListItem = ({ file }: { file: IFileItem }) => {
           <ExternalLink className="w-5 h-5 text-gray-600" />
         </Button>
       </TooltipHandler>
+      {open && (
+        <MessageDialog
+          open={open}
+          message={sharedLink}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </div>
   );
 };
@@ -101,7 +113,7 @@ const FileListItem = ({ file }: { file: IFileItem }) => {
 const FileList = ({ files }: { files: IFileItem[] }) => {
   return (
     <div className="space-y-4">
-      {files.map((file) => (
+      {files.map((file: IFileItem) => (
         <FileListItem key={file._id} file={file} />
       ))}
     </div>
