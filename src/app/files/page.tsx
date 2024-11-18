@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 import { IFileItem } from "@/utils/types";
 import axios from "@/utils/axios";
 import FileUpload from "./FileUpload";
 import FileList from "./FileList";
+import AppBar from "../components/AppBar";
 
 const fetchUserFiles = async () => {
   const response = await axios.get(`/files/my-files`);
@@ -25,6 +27,8 @@ const uploadFileMutation = async (file: File): Promise<IFileItem> => {
 
 const FilesPage = () => {
   const [items, setItems] = useState<IFileItem[]>([]);
+
+  const navigate = useNavigate();
 
   const { data, refetch } = useQuery({
     queryKey: ["fetchUserFiles"],
@@ -51,15 +55,24 @@ const FilesPage = () => {
     }
   }, [data]);
 
-  return (
-    <div className="flex flex-col lg:flex-row lg:space-x-8 p-8">
-      <div className="flex-1 mb-8 lg:mb-0">
-        <FileUpload onFileUpload={handleFileUpload} />
-      </div>
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    navigate("/login");
+  };
 
-      <div className="flex-1">
-        <h1 className="text-2xl font-bold mb-6">Uploaded Files</h1>
-        <FileList files={items} />
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <AppBar onLogout={handleLogout} />
+
+      <div className="flex flex-col lg:flex-row lg:space-x-8 p-8">
+        <div className="flex-1 mb-8 lg:mb-0">
+          <FileUpload onFileUpload={handleFileUpload} />
+        </div>
+
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold mb-6">Uploaded Files</h1>
+          <FileList files={items} />
+        </div>
       </div>
     </div>
   );
